@@ -1,0 +1,36 @@
+name: Terraform VM Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      GOOGLE_PROJECT: venu-k
+      GOOGLE_REGION: us-central1
+      GOOGLE_ZONE: us-central1-a
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform-vm init
+
+      - name: Terraform Plan
+        run: terraform -chdir=terraform-vm plan
+
+      - name: Terraform Apply
+        run: terraform -chdir=terraform-vm apply -auto-approve
+
